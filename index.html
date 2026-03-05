@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>持続化補助金 支援者向けセミナー攻略ナビ</title>
+    <title>令和7年度 神奈川県在宅医療提供体制整備事業費補助 ナビゲーター</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans JP', sans-serif;
-            background-color: #fafaf9;
-            color: #1e293b;
-        }
         .chart-container {
             position: relative;
             width: 100%;
@@ -27,387 +21,404 @@
                 height: 350px;
             }
         }
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
         .tab-active {
-            border-bottom: 2px solid #2563eb;
-            color: #2563eb;
+            border-bottom-width: 2px;
+            border-color: #0f766e;
+            color: #0f766e;
             font-weight: 700;
         }
+        .tab-inactive {
+            border-bottom-width: 2px;
+            border-color: transparent;
+            color: #57534e;
+        }
+        .tab-inactive:hover {
+            color: #0f766e;
+            border-color: #99f6e4;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hide {
+            display: none;
+        }
     </style>
-    <!-- Chosen Palette: Warm Neutral & Professional Blue (Background: stone-50, Text: slate-800, Primary: blue-600, Accent: amber-500) -->
-    <!-- Application Structure Plan: The SPA uses a sidebar/top-nav structure to divide the dense seminar information into logical, digestible sections. 1. 'Overview' sets the context. 2. 'Program' uses an interactive tab system to explore the 5 sessions and bonuses without overwhelming the user with text. 3. 'Mindset & Tactics' uses an interactive FAQ simulator to demonstrate the core problem (bad consulting vs good 'short consulting') interactively. 4. 'Impact' uses a chart to visualize the ultimate financial goal. This structure is chosen to guide the user from understanding the 'what' to experiencing the 'how' and visualizing the 'why'. -->
-    <!-- Visualization & Content Choices: 
-    - 5-Part Program -> Goal: Organize & Inform -> Viz: Interactive Tabs -> Interaction: Click tab to update content panel -> Justification: Prevents overwhelming scroll fatigue while keeping all bonus details accessible.
-    - Common Questions (Traps) -> Goal: Change behavior -> Viz: Scenario Simulator (Clickable list revealing comparison) -> Interaction: Click question to reveal 'General Expert' vs 'Ideal (Short Consulting)' response -> Justification: Active learning through contrast makes the 'Short Consulting' concept memorable.
-    - Revenue Transformation -> Goal: Compare & Impact -> Viz: Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Quantifies the abstract benefit of 'Short Consulting' (300k vs 3M). Library: Chart.js.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="flex flex-col md:flex-row min-h-screen">
+<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <nav class="w-full md:w-64 bg-slate-900 text-white flex flex-col shadow-xl z-10 sticky top-0 md:h-screen">
-        <div class="p-6">
-            <h1 class="text-xl font-bold leading-tight tracking-wide">持続化補助金<br><span class="text-blue-400 text-sm">支援者向け攻略ナビ</span></h1>
+    <!-- Chosen Palette: Warm Neutrals with Teal Accents (bg-stone-50, text-stone-800, teal-600/700) -->
+    <!-- Application Structure Plan: A tabbed interface consisting of "Category Explorer", "Equipment Filter", and "Collaboration Simulation". This structure transforms a static report into a task-oriented dashboard. Users can explore specific funding tiers, dynamically filter eligible equipment, and visually grasp the benefits of multi-disciplinary collaboration without scrolling through walls of text. -->
+    <!-- Visualization & Content Choices: 1. Category Cards (Goal: Organize/Compare -> Method: Interactive UI grid with detail panel -> Justification: Allows focused reading of specific requirements). 2. Equipment Filter (Goal: Inform/Organize -> Method: Interactive list with category toggles -> Justification: Instantly shows what can be purchased). 3. Tier Bar Chart (Goal: Compare -> Method: Chart.js Bar Chart -> Justification: Visually reinforces the scaling subsidy amount based on the number of collaborating institutions). -> Confirming NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white shadow-sm border-b border-stone-200 pt-6 pb-4 px-4 sticky top-0 z-10">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-teal-800 tracking-tight">神奈川県在宅医療補助ナビゲーター</h1>
+                    <p class="text-sm text-stone-500 mt-1">令和7年度 在宅医療提供体制整備事業費補助金 概要ダッシュボード</p>
+                </div>
+                <div class="bg-amber-100 text-amber-800 border border-amber-200 px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                    <span class="text-lg">⚠️</span> 今年度の交付申請受付は終了しました
+                </div>
+            </div>
+
+            <nav class="flex overflow-x-auto mt-6 space-x-6 border-b border-stone-200 pb-px" aria-label="Tabs">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn tab-active pb-2 px-1 whitespace-nowrap text-sm md:text-base focus:outline-none">
+                    📋 事業区分ナビ
+                </button>
+                <button onclick="switchTab('equipment')" id="tab-equipment" class="tab-btn tab-inactive pb-2 px-1 whitespace-nowrap text-sm md:text-base focus:outline-none">
+                    🏥 対象機器リスト
+                </button>
+                <button onclick="switchTab('simulation')" id="tab-simulation" class="tab-btn tab-inactive pb-2 px-1 whitespace-nowrap text-sm md:text-base focus:outline-none">
+                    📊 連携シミュレーション
+                </button>
+            </nav>
         </div>
-        <div class="flex flex-row md:flex-col overflow-x-auto md:overflow-visible">
-            <button class="nav-btn w-full text-left px-6 py-4 hover:bg-slate-800 transition-colors bg-slate-800 whitespace-nowrap md:whitespace-normal" data-target="section-intro">
-                <span class="mr-2">🏠</span> 全体概要
-            </button>
-            <button class="nav-btn w-full text-left px-6 py-4 hover:bg-slate-800 transition-colors whitespace-nowrap md:whitespace-normal" data-target="section-program">
-                <span class="mr-2">📚</span> 全5回プログラム
-            </button>
-            <button class="nav-btn w-full text-left px-6 py-4 hover:bg-slate-800 transition-colors whitespace-nowrap md:whitespace-normal" data-target="section-tactics">
-                <span class="mr-2">💡</span> 実践：顧客心理と対応
-            </button>
-            <button class="nav-btn w-full text-left px-6 py-4 hover:bg-slate-800 transition-colors whitespace-nowrap md:whitespace-normal" data-target="section-impact">
-                <span class="mr-2">📈</span> 収益モデル変革
-            </button>
-        </div>
-    </nav>
+    </header>
 
-    <main class="flex-1 p-6 md:p-10 lg:p-14 overflow-y-auto w-full">
+    <main class="flex-grow p-4 md:p-8">
+        <div class="max-w-5xl mx-auto">
 
-        <section id="section-intro" class="content-section block fade-in">
-            <header class="mb-10 border-b border-slate-200 pb-6">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">持続化補助金 採択率を劇的に上げるWEBセミナー</h2>
-                <p class="text-lg text-slate-600 leading-relaxed">
-                    本アプリケーションは、補助金申請支援を行うコンサルタントや専門家に向けた「全5回無料WEBセミナー＆勉強会」の全貌と核心部分をインタラクティブに解説するものです。補助金を単なる「申請代行」で終わらせず、自身の高単価ビジネス（コンサルティング等）へ繋げるための戦略的アプローチを学びます。
-                </p>
-            </header>
-
-            <div class="bg-white rounded-xl shadow-sm p-8 border border-slate-100 mb-8">
-                <h3 class="text-2xl font-bold text-blue-700 mb-4"><span class="mr-2">🎯</span>このセミナーの真の目的</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    <div class="bg-stone-50 p-6 rounded-lg text-center">
-                        <div class="text-4xl mb-3">🚫</div>
-                        <h4 class="font-bold text-lg mb-2">脱・単なる代行業者</h4>
-                        <p class="text-sm text-slate-600">「補助金ありき」の安価な代行業務から抜け出し、本来の価値を提供できる立ち位置を確立します。</p>
-                    </div>
-                    <div class="bg-stone-50 p-6 rounded-lg text-center border-t-4 border-blue-500">
-                        <div class="text-4xl mb-3">🤝</div>
-                        <h4 class="font-bold text-lg mb-2">ショートコンサルの実践</h4>
-                        <p class="text-sm text-slate-600">顧客の「うちでも申請できる？」という不安に対し、申請可否だけでなく根本課題を解決するアプローチを身につけます。</p>
-                    </div>
-                    <div class="bg-stone-50 p-6 rounded-lg text-center">
-                        <div class="text-4xl mb-3">💎</div>
-                        <h4 class="font-bold text-lg mb-2">高単価サービスへの誘導</h4>
-                        <p class="text-sm text-slate-600">補助金を活用して、自身の本業である高額なサービスやコンサルティングを受注するフローを構築します。</p>
-                    </div>
+            <section id="sec-overview" class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">事業区分ナビゲーション</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        本補助金は、在宅医療への新規参入や診療内容の拡充、ICT機器の導入目的などに応じて大きく4つの区分（ア〜エ）に分かれています。以下のカードをクリックして、各区分の補助上限額や申請要件の詳細を確認してください。※複数区分への同時申請はできません。
+                    </p>
                 </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-amber-100 to-amber-50 rounded-xl p-6 border border-amber-200">
-                <h4 class="font-bold text-amber-800 flex items-center"><span class="text-2xl mr-2">🎁</span> コンプリート特典（全5回参加者限定）</h4>
-                <p class="mt-2 text-amber-900 font-medium">AIを活用した企画書生成ツール</p>
-                <p class="text-sm text-amber-800 mt-1">ヒアリング内容を入力するだけで、最適な企画書を自動生成。提案の質とスピードを劇的に向上させます。</p>
-            </div>
 
-            <div class="mt-12 mb-8 text-center">
-                <a href="https://well-c.notion.site/202603?source=copy_link" target="_blank" rel="noopener noreferrer" class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105">
-                    無料WEBセミナーに参加して特典を受け取る
-                </a>
-            </div>
-        </section>
-
-        <section id="section-program" class="content-section hidden fade-in">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-slate-800 mb-4">全5回プログラムと参加特典</h2>
-                <p class="text-slate-600">
-                    各セッションで何を学び、どのような強力な武器（特典）を得られるのかを確認してください。タブをクリックして詳細を切り替えることができます。
-                </p>
-            </header>
-
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <div class="flex flex-wrap border-b border-slate-200" id="program-tabs">
-                </div>
-                
-                <div class="p-8" id="program-content">
-                </div>
-            </div>
-
-            <div class="mt-12 mb-8 text-center">
-                <a href="https://well-c.notion.site/202603?source=copy_link" target="_blank" rel="noopener noreferrer" class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105">
-                    無料WEBセミナーに参加して特典を受け取る
-                </a>
-            </div>
-        </section>
-
-        <section id="section-tactics" class="content-section hidden fade-in">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-slate-800 mb-4">第1回ハイライト：顧客の「本音」を見抜く</h2>
-                <p class="text-slate-600">
-                    見込み客から最も多く聞かれる質問に対して、一般的な専門家は事実だけを伝えて機会を損失しています。ここでは「ショートコンサル」というアプローチを用いて、どのように顧客の不安を払拭し、信頼を獲得するかをシミュレーションします。
-                </p>
-            </header>
-
-            <div class="mb-10">
-                <h3 class="text-xl font-bold mb-4 border-l-4 border-blue-600 pl-3">申請可否を判断する3つの視点</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
-                        <div class="text-2xl mb-2">🏢</div>
-                        <h4 class="font-bold mb-1">規模の要件</h4>
-                        <p class="text-sm text-slate-600">「小規模事業者」に該当するか。商業・サービス業は5人以下など、その場で即答できる知識が必要です。</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
-                        <div class="text-2xl mb-2">🔄</div>
-                        <h4 class="font-bold mb-1">過去採択の扱い</h4>
-                        <p class="text-sm text-slate-600">過去に採択されていても、一定の条件を満たせば再申請可能。「もらったことがある＝不可」ではありません。</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
-                        <div class="text-2xl mb-2">📊</div>
-                        <h4 class="font-bold mb-1">赤字・他給付金の有無</h4>
-                        <p class="text-sm text-slate-600">赤字であっても、他の給付金を受けていても、持続化補助金の申請の妨げにはなりません。</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-slate-900 rounded-xl p-6 md:p-8 text-white shadow-lg">
-                <h3 class="text-2xl font-bold mb-2 text-center">ライバルが嫌がる質問への「神対応」シミュレーター</h3>
-                <p class="text-slate-400 text-center text-sm mb-8">質問をクリックして、一般的な対応と理想的な「ショートコンサル」対応の違いを確認してください。</p>
-
-                <div class="space-y-4" id="faq-container">
-                </div>
-            </div>
-
-            <div class="mt-12 mb-8 text-center">
-                <a href="https://well-c.notion.site/202603?source=copy_link" target="_blank" rel="noopener noreferrer" class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105">
-                    無料WEBセミナーに参加して特典を受け取る
-                </a>
-            </div>
-        </section>
-
-        <section id="section-impact" class="content-section hidden fade-in">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-slate-800 mb-4">収益モデル変革：代行からコンサルへ</h2>
-                <p class="text-slate-600">
-                    「ショートコンサル」を実践し、顧客の本当の課題に寄り添うことで、ビジネスの収益構造は劇的に変化します。単なる書類作成代行の報酬形態から脱却し、本来のコンサルティング価値を提供した場合の収益インパクトを可視化します。
-                </p>
-            </header>
-
-            <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8 flex flex-col md:flex-row items-center gap-8">
-                <div class="w-full md:w-1/2">
-                    <h3 class="text-xl font-bold mb-4 text-slate-800">ショートコンサル 3つのステップ</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-700 font-bold w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0">1</span>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 flex flex-col gap-3">
+                        <button onclick="selectCategory('A')" id="btn-cat-A" class="text-left w-full p-4 rounded-lg border-2 border-teal-600 bg-teal-50 hover:bg-teal-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm">
                             <div>
-                                <h4 class="font-bold text-slate-800">不安の払拭</h4>
-                                <p class="text-sm text-slate-600">「うちでも使える？」という漠然とした不安に対し、明確な基準を示して安心させます。</p>
+                                <div class="text-xs font-bold text-teal-600 mb-1">区分 ア</div>
+                                <div class="font-bold text-stone-800">在宅医療の新規参入支援</div>
                             </div>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-700 font-bold w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0">2</span>
-                            <div>
-                                <h4 class="font-bold text-slate-800">具体策の提示</h4>
-                                <p class="text-sm text-slate-600">ヒアリングを通じて顧客の本質的な課題（例：集客不足）を特定し、補助金を活用した解決策を提示します。</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-700 font-bold w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0">3</span>
-                            <div>
-                                <h4 class="font-bold text-slate-800">実行計画の提案</h4>
-                                <p class="text-sm text-slate-600">補助金申請だけでなく、その後の施策（自社のコンサルや制作サービス）を含めた全体像を提案し、「お願いします」を引き出します。</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="w-full md:w-1/2 bg-stone-50 rounded-lg p-4">
-                    <h4 class="text-center font-bold text-slate-700 mb-4">単価向上インパクト（例）</h4>
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                    <p class="text-xs text-center text-slate-500 mt-4">※あくまで概念モデルであり、実際の金額を保証するものではありません。</p>
-                </div>
-            </div>
-
-            <div class="mt-12 mb-8 text-center">
-                <a href="https://well-c.notion.site/202603?source=copy_link" target="_blank" rel="noopener noreferrer" class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105">
-                    無料WEBセミナーに参加して特典を受け取る
-                </a>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
-        const programs = [
-            {
-                id: 1,
-                title: "Part 1",
-                theme: "全体概要＋よくある質問＋「うちでも申請できますか？」",
-                bonus: "電子書籍「補助金入門テンプレート活用で事業計画を通す方法」",
-                point: "知識ゼロからでも全体像と事業計画の通し方が動画付きでわかる。"
-            },
-            {
-                id: 2,
-                title: "Part 2",
-                theme: "プロモーション企画を立てる＋事例",
-                bonus: "【PDF】企画書作成ルールブックガイド",
-                point: "※最重要特典。これを手に入れるだけで顧客開拓に苦労しなくなる強力なガイド。"
-            },
-            {
-                id: 3,
-                title: "Part 3",
-                theme: "ソリューションアイデアの選択肢を手に入れる＋事例",
-                bonus: "【PDF】企画・採択事例集",
-                point: "商談時のスパイスとして使える。成功・失敗事例や体験談の集積。"
-            },
-            {
-                id: 4,
-                title: "Part 4",
-                theme: "事業計画書を作成する＋事例",
-                bonus: "【Docs】審査官がNOと言えない事業計画書の作り方",
-                point: "実際に有料(1,980円)で販売されているノウハウのドキュメント版。"
-            },
-            {
-                id: 5,
-                title: "Part 5",
-                theme: "さらに採択率を上げる方法（依頼相手の選び方）",
-                bonus: "【PDF】補助金問い合わせLPテンプレート",
-                point: "5年間使い続けている漫画版LPの雛形。集客力が高く平均CPA1,289円を達成。"
-            }
-        ];
-
-        const faqs = [
-            {
-                q: "「何か使えるものはありますか？」",
-                bad: "「補助金ありきならやりません」と上から目線で牽制・お説教をしてしまう。結果、顧客は離れていく。",
-                good: "顧客は価格を知りたいのではなく、安心したい・頼る理由が欲しいだけと理解する。ヒアリングで課題を探り、適切なステップで自社サービスへ誘導する。",
-                truth: "本当に知りたいのは「自分でも現状を打開できるか」という安心感。"
-            },
-            {
-                q: "「ホームページは作りたいです」",
-                bad: "「HP制作は補助金の趣旨とズレるかも…」と面倒くさがって詳細なルール説明から入り、相手をウンザリさせる。",
-                good: "HPは販路開拓の手段の一つに過ぎないと捉える。「なぜHPを作りたいのか？」を深掘りし、集客などの本当の目的を整理し、ギャップを埋める提案をする。",
-                truth: "目的（集客）と手段（HP）の整理がついていない状態。"
-            },
-            {
-                q: "「すでに使った経費は対象になりますか？」",
-                bad: "「ルール上ダメです」と一刀両断して会話を終わらせてしまう。",
-                good: "「今回は対象外ですが、これからの事業展開で〇〇のような投資はお考えですか？」とショートコンサルへ誘導し、未来の提案に繋げる。",
-                truth: "過去の清算ではなく、これからの事業成長のサポートを求めている可能性がある。"
-            }
-        ];
-
-        let chartInstance = null;
-
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    b.classList.remove('bg-slate-800', 'border-l-4', 'border-blue-500');
-                    b.classList.add('text-slate-300');
-                });
-                const currentBtn = e.currentTarget;
-                currentBtn.classList.remove('text-slate-300');
-                currentBtn.classList.add('bg-slate-800', 'border-l-4', 'border-blue-500', 'text-white');
-
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.classList.add('hidden');
-                });
-                const targetId = currentBtn.getAttribute('data-target');
-                document.getElementById(targetId).classList.remove('hidden');
-
-                if (targetId === 'section-impact') {
-                    initChart();
-                }
-            });
-        });
-
-        function renderProgramTabs() {
-            const tabsContainer = document.getElementById('program-tabs');
-            const contentContainer = document.getElementById('program-content');
-
-            programs.forEach((prog, index) => {
-                const btn = document.createElement('button');
-                btn.className = `px-6 py-4 text-sm font-medium transition-colors focus:outline-none ${index === 0 ? 'tab-active' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`;
-                btn.innerText = prog.title;
-                btn.onclick = () => {
-                    document.querySelectorAll('#program-tabs button').forEach(b => b.className = 'px-6 py-4 text-sm font-medium transition-colors focus:outline-none text-slate-500 hover:text-slate-800 hover:bg-slate-50');
-                    btn.className = 'px-6 py-4 text-sm font-medium transition-colors focus:outline-none tab-active';
-                    renderProgramContent(prog);
-                };
-                tabsContainer.appendChild(btn);
-            });
-
-            renderProgramContent(programs[0]);
-        }
-
-        function renderProgramContent(prog) {
-            const contentContainer = document.getElementById('program-content');
-            contentContainer.innerHTML = `
-                <div class="animate-[fadeIn_0.3s_ease-in-out]">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-2">${prog.title}</h3>
-                    <p class="text-xl text-blue-700 font-bold mb-6">${prog.theme}</p>
-                    
-                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-2 h-full bg-amber-400"></div>
-                        <h4 class="text-sm text-amber-800 font-bold mb-1 uppercase tracking-wider">参加特典</h4>
-                        <p class="text-lg font-bold text-slate-800 mb-3">${prog.bonus}</p>
-                        <p class="text-slate-700 bg-white p-4 rounded border border-amber-100"><span class="mr-2">💡</span>${prog.point}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderFaqs() {
-            const container = document.getElementById('faq-container');
-            faqs.forEach((faq, i) => {
-                const id = `faq-${i}`;
-                container.innerHTML += `
-                    <div class="border border-slate-700 rounded-lg overflow-hidden bg-slate-800">
-                        <button class="w-full text-left px-6 py-4 font-bold text-lg focus:outline-none hover:bg-slate-700 flex justify-between items-center" onclick="toggleFaq('${id}')">
-                            <span><span class="text-blue-400 mr-2">Q.</span>${faq.q}</span>
-                            <span class="text-slate-400 transform transition-transform" id="${id}-icon">▼</span>
+                            <span class="text-teal-600 font-bold">▶</span>
                         </button>
-                        <div class="hidden px-6 pb-6 pt-2 border-t border-slate-700" id="${id}-content">
-                            <p class="text-sm text-slate-400 mb-4 bg-slate-900 p-3 rounded italic">顧客の本音： ${faq.truth}</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-red-900/20 border border-red-800 rounded p-4">
-                                    <h5 class="text-red-400 font-bold mb-2 flex items-center"><span class="mr-2">❌</span>一般の専門家の対応</h5>
-                                    <p class="text-sm text-slate-300 leading-relaxed">${faq.bad}</p>
+                        <button onclick="selectCategory('B')" id="btn-cat-B" class="text-left w-full p-4 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm">
+                            <div>
+                                <div class="text-xs font-bold text-stone-500 mb-1">区分 イ</div>
+                                <div class="font-bold text-stone-800">診療内容拡充・患者増</div>
+                            </div>
+                            <span class="text-stone-400">▶</span>
+                        </button>
+                        <button onclick="selectCategory('C')" id="btn-cat-C" class="text-left w-full p-4 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm">
+                            <div>
+                                <div class="text-xs font-bold text-stone-500 mb-1">区分 ウ</div>
+                                <div class="font-bold text-stone-800">ICT活用【単独型】</div>
+                            </div>
+                            <span class="text-stone-400">▶</span>
+                        </button>
+                        <button onclick="selectCategory('D')" id="btn-cat-D" class="text-left w-full p-4 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm">
+                            <div>
+                                <div class="text-xs font-bold text-stone-500 mb-1">区分 エ</div>
+                                <div class="font-bold text-stone-800">ICT活用【多職種連携型】</div>
+                            </div>
+                            <span class="text-stone-400">▶</span>
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-md border border-stone-200 p-6 md:p-8 h-full">
+                            <div id="cat-detail-header" class="border-b border-stone-100 pb-4 mb-4">
+                                <span id="cat-badge" class="inline-block bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full font-bold mb-2">区分 ア</span>
+                                <h3 id="cat-title" class="text-2xl font-bold text-stone-800">在宅医療の新規参入支援</h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="bg-stone-50 p-4 rounded-lg">
+                                    <div class="text-sm text-stone-500 mb-1">補助上限額</div>
+                                    <div id="cat-limit" class="text-3xl font-bold text-teal-700">225<span class="text-lg text-stone-600 font-normal">万円</span></div>
                                 </div>
-                                <div class="bg-emerald-900/20 border border-emerald-800 rounded p-4">
-                                    <h5 class="text-emerald-400 font-bold mb-2 flex items-center"><span class="mr-2">✅</span>ショートコンサル対応</h5>
-                                    <p class="text-sm text-slate-300 leading-relaxed">${faq.good}</p>
+                                <div class="bg-stone-50 p-4 rounded-lg">
+                                    <div class="text-sm text-stone-500 mb-1">対象内容</div>
+                                    <div id="cat-target" class="text-sm font-medium text-stone-800 mt-1">医療機器 ＋ ICT機器</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-bold text-stone-800 border-l-4 border-teal-500 pl-2 mb-2">対象となる医療機関</h4>
+                                    <p id="cat-who" class="text-sm text-stone-600 bg-white border border-stone-200 p-3 rounded">県内に所在する病院又は診療所（歯科診療所は除く）</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-stone-800 border-l-4 border-teal-500 pl-2 mb-2">主な要件</h4>
+                                    <ul id="cat-reqs" class="list-disc list-inside text-sm text-stone-600 space-y-1 bg-white border border-stone-200 p-3 rounded">
+                                        <li>申請日時点で在宅療養支援病院等の届出を行っていないこと</li>
+                                        <li>令和8年2月13日までに同施設基準の届出を行うこと</li>
+                                        <li>ICT機器購入時は、情報通信機器を用いた診療の届出を行っていないこと</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
-                `;
+                </div>
+            </section>
+
+            <section id="sec-equipment" class="hide fade-in">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">対象機器チェッカー</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        補助対象となる機器は、申請する事業区分によって異なります。下記のボタンで対象区分を切り替えることで、どの機器がどの区分で購入可能かを確認できます。往診や訪問診療で持ち運び可能な機器が中心となっています。
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border border-stone-200">
+                    <div class="flex flex-wrap gap-2 mb-6 border-b border-stone-100 pb-6">
+                        <span class="text-sm font-bold text-stone-500 flex items-center mr-2">フィルタ:</span>
+                        <button onclick="filterEquip('ALL')" id="eq-btn-ALL" class="px-4 py-2 rounded-full text-sm font-bold bg-teal-600 text-white transition-colors">すべて表示</button>
+                        <button onclick="filterEquip('A')" id="eq-btn-A" class="px-4 py-2 rounded-full text-sm font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors">区分 ア (新規参入)</button>
+                        <button onclick="filterEquip('B')" id="eq-btn-B" class="px-4 py-2 rounded-full text-sm font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors">区分 イ (拡充)</button>
+                        <button onclick="filterEquip('C')" id="eq-btn-C" class="px-4 py-2 rounded-full text-sm font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors">区分 ウ (ICT単独)</button>
+                        <button onclick="filterEquip('D')" id="eq-btn-D" class="px-4 py-2 rounded-full text-sm font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors">区分 エ (ICT連携)</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="font-bold text-lg text-teal-800 mb-4 flex items-center gap-2"><span>🩺</span> 医療機器 <span class="text-xs font-normal text-stone-500 bg-stone-100 px-2 py-1 rounded">(区分ア・イ対象)</span></h3>
+                            <ul id="list-medical" class="space-y-2">
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-indigo-800 mb-4 flex items-center gap-2"><span>💻</span> 情報通信機器 <span class="text-xs font-normal text-stone-500 bg-stone-100 px-2 py-1 rounded">(区分ア・ウ・エ対象)</span></h3>
+                            <ul id="list-ict" class="space-y-2">
+                            </ul>
+                            
+                            <div class="mt-6 bg-indigo-50 border border-indigo-100 p-4 rounded-lg text-sm text-indigo-800">
+                                <p class="font-bold mb-1">⚠️ ICT機器の注意点</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>パソコンは1台あたり上限15万円</li>
+                                    <li>タブレットは1台あたり上限7万5千円</li>
+                                    <li>リース料、保守費用、通信費等の経常的経費は対象外</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-simulation" class="hide fade-in">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-2">多職種連携型 (区分エ) 資金シミュレーション</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        「区分エ（情報通信機器を活用した取組支援・多職種連携型）」では、地域包括ケアの推進を目的として、連携体を構成する医療機関等の数に応じて補助上限額が変動（スケール）する仕組みになっています。以下のグラフは、連携機関数ごとの上限額の推移を示しています。
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border border-stone-200">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                        <div class="lg:col-span-2">
+                            <div class="chart-container">
+                                <canvas id="tierChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-1 space-y-4">
+                            <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                                <h3 class="font-bold text-stone-800 text-sm mb-2 border-b border-stone-200 pb-2">連携の必須要件</h3>
+                                <ul class="text-sm text-stone-600 space-y-2 list-disc list-inside">
+                                    <li>病院、診療所、訪問看護ステーション、薬局のいずれかであること</li>
+                                    <li><span class="font-bold text-teal-700">2者以上</span>が連携して取り組むこと</li>
+                                    <li>連携の中に<span class="font-bold text-teal-700">必ず病院または診療所が含まれている</span>こと</li>
+                                    <li>運営主体が<span class="font-bold text-red-600">同一の医療機関同士の連携は不可</span></li>
+                                    <li>各機関が個別に申請書を提出すること</li>
+                                </ul>
+                            </div>
+                            <div class="text-xs text-stone-500">
+                                ※連携機関数が多いほど地域全体のネットワーク強化に繋がるため、手厚い補助上限額が設定されています。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="bg-stone-800 text-stone-300 py-8 mt-8">
+        <div class="max-w-5xl mx-auto px-4 text-sm text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <p class="font-bold text-white mb-1">事業実施スケジュール</p>
+                <p>申請受付：令和7年5月12日 〜 令和7年7月31日 (終了)</p>
+                <p>事業実施：交付決定日 〜 令和8年1月31日</p>
+            </div>
+            <div class="md:text-right">
+                <p class="font-bold text-white mb-1">提出先・お問い合わせ</p>
+                <p>神奈川県健康医療局医療企画課地域包括ケアグループ</p>
+                <p>在宅医療補助金担当</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const categories = {
+            'A': {
+                badge: '区分 ア',
+                title: '在宅医療の新規参入支援',
+                limit: '225',
+                target: '医療機器 ＋ ICT機器',
+                who: '県内に所在する病院又は診療所（歯科診療所は除く）',
+                reqs: [
+                    '申請日時点で在宅療養支援病院等の届出を行っていないこと',
+                    '令和8年2月13日までに同施設基準の届出を行うこと',
+                    'ICT機器購入時は、情報通信機器を用いた診療の届出を行っていないこと'
+                ]
+            },
+            'B': {
+                badge: '区分 イ',
+                title: '診療内容拡充・在宅患者受入増加',
+                limit: '97.5',
+                target: '医療機器のみ',
+                who: '県内に所在する病院又は診療所（歯科診療所は除く）',
+                reqs: [
+                    '診療内容の拡充かつ在宅患者受入数増加の計画を示していること',
+                    '申請日時点で在宅療養支援病院又は在宅療養支援診療所の施設基準に係る届出を行っていること'
+                ]
+            },
+            'C': {
+                badge: '区分 ウ',
+                title: 'ICT活用【単独型】',
+                limit: '30',
+                target: 'ICT機器のみ',
+                who: '県内に所在する病院又は診療所（歯科診療所は除く）',
+                reqs: [
+                    '申請日時点で情報通信機器を用いた診療に係る届出を行っていないこと',
+                    '令和8年2月13日までに情報通信機器を用いた診療に係る届出を行うこと'
+                ]
+            },
+            'D': {
+                badge: '区分 エ',
+                title: 'ICT活用【多職種連携型】',
+                limit: '最大375',
+                target: 'ICT機器のみ',
+                who: '県内に所在する病院、診療所、訪問看護ステーション、薬局',
+                reqs: [
+                    '2者以上の医療機関が連携して事業に取り組み、病院又は診療所が連携に含まれていること',
+                    '運営主体が同一の医療機関が連携に含まれないこと',
+                    '連携する医療機関の全てが個別に交付申請書の提出を行うこと'
+                ]
+            }
+        };
+
+        function selectCategory(catId) {
+            ['A', 'B', 'C', 'D'].forEach(id => {
+                const btn = document.getElementById('btn-cat-' + id);
+                btn.className = 'text-left w-full p-4 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm';
+                btn.querySelector('span').className = 'text-stone-400';
+                btn.querySelector('div > div:first-child').className = 'text-xs font-bold text-stone-500 mb-1';
+            });
+
+            const activeBtn = document.getElementById('btn-cat-' + catId);
+            activeBtn.className = 'text-left w-full p-4 rounded-lg border-2 border-teal-600 bg-teal-50 transition-colors focus:outline-none flex justify-between items-center shadow-sm';
+            activeBtn.querySelector('span').className = 'text-teal-600 font-bold';
+            activeBtn.querySelector('span').innerText = '▶';
+            activeBtn.querySelector('div > div:first-child').className = 'text-xs font-bold text-teal-600 mb-1';
+
+            const data = categories[catId];
+            document.getElementById('cat-badge').innerText = data.badge;
+            document.getElementById('cat-title').innerText = data.title;
+            document.getElementById('cat-limit').innerHTML = data.limit + '<span class="text-lg text-stone-600 font-normal">万円</span>';
+            document.getElementById('cat-target').innerText = data.target;
+            document.getElementById('cat-who').innerText = data.who;
+            
+            const ul = document.getElementById('cat-reqs');
+            ul.innerHTML = '';
+            data.reqs.forEach(req => {
+                const li = document.createElement('li');
+                li.innerText = req;
+                ul.appendChild(li);
             });
         }
 
-        window.toggleFaq = function(id) {
-            const content = document.getElementById(`${id}-content`);
-            const icon = document.getElementById(`${id}-icon`);
-            if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                content.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)';
-            }
+        const equipmentData = [
+            { id: 1, name: 'X線撮影装置 (往診・訪問用)', type: 'medical', cats: ['A', 'B'] },
+            { id: 2, name: '超音波診断装置 (バッテリー駆動)', type: 'medical', cats: ['A', 'B'] },
+            { id: 3, name: '解析付心電計', type: 'medical', cats: ['A', 'B'] },
+            { id: 4, name: 'ポータブル内視鏡', type: 'medical', cats: ['A', 'B'] },
+            { id: 5, name: '簡易睡眠時無呼吸検査装置', type: 'medical', cats: ['A', 'B'] },
+            { id: 6, name: '血液・尿検査装置 (往診・訪問用)', type: 'medical', cats: ['A', 'B'] },
+            { id: 7, name: '肺機能検査装置 (持ち運び可能)', type: 'medical', cats: ['A', 'B'] },
+            { id: 8, name: 'パルスオキシメーター', type: 'medical', cats: ['A', 'B'] },
+            { id: 9, name: 'ネブライザー、吸引器', type: 'medical', cats: ['A', 'B'] },
+            { id: 10, name: '輸液ポンプ・シリンジポンプ', type: 'medical', cats: ['A', 'B'] },
+            { id: 11, name: '膀胱用超音波画像診断装置', type: 'medical', cats: ['A', 'B'] },
+            { id: 12, name: '小型卓上高圧蒸気滅菌器', type: 'medical', cats: ['A', 'B'] },
+            { id: 13, name: '血圧計 (持ち運び可/卓上型)', type: 'medical', cats: ['A', 'B'] },
+            { id: 14, name: '眼底・眼圧計 (ハンディタイプ)', type: 'medical', cats: ['A', 'B'] },
+            { id: 15, name: '生体情報モニタ (ベッドサイド)', type: 'medical', cats: ['A', 'B'] },
+            { id: 16, name: '経腸栄養用輸液ポンプ', type: 'medical', cats: ['A', 'B'] },
+            { id: 17, name: '在宅身体機能関連機器', type: 'medical', cats: ['A', 'B'] },
+            { id: 'a', name: 'パソコン・タブレット', type: 'ict', cats: ['A', 'C', 'D'] },
+            { id: 'a2', name: 'カメラ・マイク・ヘッドセット・ルーター', type: 'ict', cats: ['A', 'C', 'D'] },
+            { id: 'b', name: '見守り用機器', type: 'ict', cats: ['A', 'C', 'D'] },
+            { id: 'c', name: '必要となるアプリ、システム導入費', type: 'ict', cats: ['A', 'C', 'D'] }
+        ];
+
+        function filterEquip(filterId) {
+            ['ALL', 'A', 'B', 'C', 'D'].forEach(id => {
+                const btn = document.getElementById('eq-btn-' + id);
+                if (id === filterId) {
+                    btn.className = 'px-4 py-2 rounded-full text-sm font-bold bg-teal-600 text-white transition-colors';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-full text-sm font-bold bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors';
+                }
+            });
+
+            const medList = document.getElementById('list-medical');
+            const ictList = document.getElementById('list-ict');
+            medList.innerHTML = '';
+            ictList.innerHTML = '';
+
+            let medCount = 0;
+            let ictCount = 0;
+
+            equipmentData.forEach(item => {
+                if (filterId === 'ALL' || item.cats.includes(filterId)) {
+                    const li = document.createElement('li');
+                    li.className = 'p-3 bg-white border border-stone-200 rounded-md text-sm text-stone-700 shadow-sm flex items-start gap-2';
+                    li.innerHTML = `<span class="text-stone-400 font-mono text-xs pt-0.5 w-6 inline-block">${item.id}.</span> <span>${item.name}</span>`;
+                    
+                    if (item.type === 'medical') {
+                        medList.appendChild(li);
+                        medCount++;
+                    } else {
+                        ictList.appendChild(li);
+                        ictCount++;
+                    }
+                }
+            });
+
+            if (medCount === 0) medList.innerHTML = '<li class="p-3 text-sm text-stone-400 bg-stone-50 rounded italic text-center">選択した区分では対象外です</li>';
+            if (ictCount === 0) ictList.innerHTML = '<li class="p-3 text-sm text-stone-400 bg-stone-50 rounded italic text-center">選択した区分では対象外です</li>';
         }
 
+        let chartInstance = null;
+
         function initChart() {
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-            const ctx = document.getElementById('revenueChart').getContext('2d');
+            if (chartInstance) return;
+            const ctx = document.getElementById('tierChart').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['単なる代行業者', 'コンサルタント'],
+                    labels: ['2者連携', '3者連携', '4者連携', '5者以上連携'],
                     datasets: [{
-                        label: '想定単価（万円）',
-                        data: [30, 300],
+                        label: '補助上限額 (万円)',
+                        data: [75, 135, 225, 375],
                         backgroundColor: [
-                            'rgba(148, 163, 184, 0.7)', 
-                            'rgba(37, 99, 235, 0.9)'  
+                            'rgba(15, 118, 110, 0.4)',
+                            'rgba(15, 118, 110, 0.6)',
+                            'rgba(15, 118, 110, 0.8)',
+                            'rgba(15, 118, 110, 1.0)'
                         ],
-                        borderColor: [
-                            'rgb(71, 85, 105)',
-                            'rgb(29, 78, 216)'
-                        ],
+                        borderColor: 'rgba(15, 118, 110, 1)',
                         borderWidth: 1,
                         borderRadius: 4
                     }]
@@ -416,20 +427,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y + '万円';
-                                    }
-                                    return label;
+                                    return context.parsed.y + ' 万円';
                                 }
                             }
                         }
@@ -437,24 +439,41 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '単価（万円）'
-                            }
+                            title: { display: true, text: '上限額 (万円)', color: '#57534e' },
+                            ticks: { color: '#78716c' },
+                            grid: { color: '#f5f5f4' }
+                        },
+                        x: {
+                            ticks: { color: '#57534e', font: { weight: 'bold' } },
+                            grid: { display: false }
                         }
                     }
                 }
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelector('.nav-btn').classList.add('bg-slate-800', 'border-l-4', 'border-blue-500', 'text-white');
-            document.querySelector('.nav-btn').classList.remove('text-slate-300');
-            
-            renderProgramTabs();
-            renderFaqs();
-        });
+        function switchTab(tabId) {
+            ['overview', 'equipment', 'simulation'].forEach(id => {
+                document.getElementById('sec-' + id).classList.add('hide');
+                const btn = document.getElementById('tab-' + id);
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
 
+            document.getElementById('sec-' + tabId).classList.remove('hide');
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('tab-inactive');
+            activeBtn.classList.add('tab-active');
+
+            if (tabId === 'simulation') {
+                setTimeout(initChart, 100);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            selectCategory('A');
+            filterEquip('ALL');
+        });
     </script>
 </body>
 </html>
